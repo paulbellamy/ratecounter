@@ -13,6 +13,7 @@ counts in an interval
 
 ## Documentation
 
+```
 type Counter struct {
     // contains filtered or unexported fields
 }
@@ -41,5 +42,4 @@ func (r *RateCounter) Mark()
 
 func (r *RateCounter) Rate() int64
     Return the current number of events in the last interval
-
-
+```
