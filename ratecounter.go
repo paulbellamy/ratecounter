@@ -1,6 +1,6 @@
-// Package rate_counter provides a concurrent rate-counter, for tracking counts
+// Package ratecounter provides a concurrent rate-counter, for tracking counts
 // in an interval
-package rate_counter
+package ratecounter
 
 import (
 	"time"

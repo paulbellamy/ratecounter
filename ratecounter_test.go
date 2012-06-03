@@ -1,4 +1,4 @@
-package rate_counter
+package ratecounter
 
 import (
   "sync"
