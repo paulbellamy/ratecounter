@@ -59,3 +59,13 @@ func TestRateCounter(t *testing.T) {
   time.Sleep(2 * interval)
   check(0)
 }
+
+func BenchmarkRateCounter(b *testing.B) {
+  interval := 0 * time.Millisecond
+  r := NewRateCounter(interval)
+
+  for i := 0; i < b.N; i++ {
+    r.Mark()
+    r.Rate()
+  }
+}
