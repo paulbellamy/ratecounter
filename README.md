@@ -1,6 +1,6 @@
 # ratecounter
 
-A Concurrent RateCounter implementation in Golang
+A Thread-Safe RateCounter implementation in Golang
 
 ## Usage
 
@@ -8,7 +8,7 @@ A Concurrent RateCounter implementation in Golang
 import "github.com/paulbellamy/ratecounter"
 ```
 
-Package ratecounter provides a concurrent rate-counter, for tracking
+Package ratecounter provides a thread-safe rate-counter, for tracking
 counts in an interval
 
 Useful for implementing counters and stats of 'requests-per-second' (for

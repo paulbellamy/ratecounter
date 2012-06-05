@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package ratecounter provides a concurrent rate-counter, for tracking counts
+Package ratecounter provides a thread-safe rate-counter, for tracking counts
 in an interval
 
 Useful for implementing counters and stats of 'requests-per-second' (for example).
