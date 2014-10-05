@@ -50,8 +50,12 @@ func NewRateCounter(intrvl time.Duration) *RateCounter {
 // Add 1 event into the RateCounter
 func (r *RateCounter) Mark() {
 	r.counter.Incr(1)
+	r.scheduleDecrement(-1)
+}
+
+func (r *RateCounter) scheduleDecrement(amount int64) {
 	time.AfterFunc(r.interval, func() {
-		r.counter.Incr(-1)
+		r.counter.Incr(amount)
 	})
 }
 

@@ -69,3 +69,12 @@ func BenchmarkRateCounter(b *testing.B) {
 		r.Rate()
 	}
 }
+
+func BenchmarkRateCounter_ScheduleDecrement(b *testing.B) {
+	interval := 0 * time.Millisecond
+	r := NewRateCounter(interval)
+
+	for i := 0; i < b.N; i++ {
+		r.scheduleDecrement(-1)
+	}
+}
