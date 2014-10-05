@@ -5,36 +5,36 @@
 package ratecounter
 
 import (
+	"sync"
 	"time"
 )
 
 // A Counter is a thread-safe counter implementation
 type Counter struct {
 	value int64
-	lock  chan int
+	mutex *sync.Mutex
 }
 
 // NewCounter is used to construct a new Counter object
 func NewCounter() *Counter {
 	return &Counter{
 		value: 0,
-		lock:  make(chan int, 1),
+		mutex: &sync.Mutex{},
 	}
 }
 
 // Increment the counter by some value
 func (c *Counter) Incr(val int64) {
-	c.lock <- 1
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 	c.value += val
-	<-c.lock
 }
 
 // Return the counter's current value
 func (c *Counter) Value() int64 {
-	c.lock <- 1
-	val := c.value
-	<-c.lock
-	return val
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	return c.value
 }
 
 // A RateCounter is a thread-safe counter which returns the number of times
