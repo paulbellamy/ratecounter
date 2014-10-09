@@ -6,7 +6,7 @@ import (
 )
 
 func TestCounter(t *testing.T) {
-	c := NewCounter()
+	var c Counter
 
 	check := func(expected int64) {
 		val := c.Value()

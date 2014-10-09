@@ -5,14 +5,13 @@ import "time"
 // A RateCounter is a thread-safe counter which returns the number of times
 // 'Incr' has been called in the last interval
 type RateCounter struct {
-	counter  *Counter
+	counter  Counter
 	interval time.Duration
 }
 
 // Constructs a new RateCounter, for the interval provided
 func NewRateCounter(intrvl time.Duration) *RateCounter {
 	return &RateCounter{
-		counter:  NewCounter(),
 		interval: intrvl,
 	}
 }
