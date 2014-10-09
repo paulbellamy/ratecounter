@@ -5,6 +5,8 @@
 package ratecounter
 
 import (
+	"fmt"
+	"io/ioutil"
 	"sync"
 	"testing"
 	"time"
@@ -51,10 +53,9 @@ func TestRateCounter(t *testing.T) {
 	}
 
 	check(0)
-	r.Mark()
+	r.Incr(1)
 	check(1)
-	r.Mark()
-	r.Mark()
+	r.Incr(2)
 	check(3)
 	time.Sleep(2 * interval)
 	check(0)
@@ -65,7 +66,7 @@ func BenchmarkRateCounter(b *testing.B) {
 	r := NewRateCounter(interval)
 
 	for i := 0; i < b.N; i++ {
-		r.Mark()
+		r.Incr(1)
 		r.Rate()
 	}
 }
@@ -77,4 +78,12 @@ func BenchmarkRateCounter_ScheduleDecrement(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		r.scheduleDecrement(-1)
 	}
+}
+
+func Benchmark_TimeNowAndAdd(b *testing.B) {
+	a := []time.Time{}
+	for i := 0; i < b.N; i++ {
+		a = append(a, time.Now().Add(1*time.Second))
+	}
+	fmt.Fprintln(ioutil.Discard, a)
 }

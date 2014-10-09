@@ -33,7 +33,7 @@ func (c *Counter) Value() int64 {
 }
 
 // A RateCounter is a thread-safe counter which returns the number of times
-// 'Mark' has been called in the last interval
+// 'Incr' has been called in the last interval
 type RateCounter struct {
 	counter  *Counter
 	interval time.Duration
@@ -47,10 +47,10 @@ func NewRateCounter(intrvl time.Duration) *RateCounter {
 	}
 }
 
-// Add 1 event into the RateCounter
-func (r *RateCounter) Mark() {
-	r.counter.Incr(1)
-	r.scheduleDecrement(-1)
+// Add an event into the RateCounter
+func (r *RateCounter) Incr(val int64) {
+	r.counter.Incr(val)
+	r.scheduleDecrement(-1 * val)
 }
 
 func (r *RateCounter) scheduleDecrement(amount int64) {
