@@ -19,13 +19,12 @@ func NewRateCounter(intrvl time.Duration) *RateCounter {
 // Add an event into the RateCounter
 func (r *RateCounter) Incr(val int64) {
 	r.counter.Incr(val)
-	r.scheduleDecrement(-1 * val)
+	go r.scheduleDecrement(val)
 }
 
 func (r *RateCounter) scheduleDecrement(amount int64) {
-	time.AfterFunc(r.interval, func() {
-		r.counter.Incr(amount)
-	})
+	time.Sleep(r.interval)
+	r.counter.Incr(-1 * amount)
 }
 
 // Return the current number of events in the last interval

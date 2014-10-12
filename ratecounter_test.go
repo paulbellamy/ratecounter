@@ -27,16 +27,16 @@ func TestRateCounter(t *testing.T) {
 	check(0)
 }
 
-func TestRateCounter_ScheduleDecrement_ReturnsImmediately(t *testing.T) {
+func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 	interval := 1 * time.Second
 	r := NewRateCounter(interval)
 
 	start := time.Now()
-	r.scheduleDecrement(-1)
+	r.Incr(-1)
 	duration := time.Since(start)
 
 	if duration >= 1*time.Second {
-		t.Error("scheduleDecrement took", duration, "to return")
+		t.Error("incr took", duration, "to return")
 	}
 }
 
