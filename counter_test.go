@@ -33,3 +33,11 @@ func TestCounter(t *testing.T) {
 	wg.Wait()
 	check(16)
 }
+
+func BenchmarkCounter(b *testing.B) {
+	var c Counter
+
+	for i := 0; i < b.N; i++ {
+		c.Incr(1)
+	}
+}
