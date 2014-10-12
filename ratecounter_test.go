@@ -50,6 +50,18 @@ func BenchmarkRateCounter(b *testing.B) {
 	}
 }
 
+func BenchmarkRateCounter_Parallel(b *testing.B) {
+	interval := 0 * time.Millisecond
+	r := NewRateCounter(interval)
+
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			r.Incr(1)
+			r.Rate()
+		}
+	})
+}
+
 func BenchmarkRateCounter_ScheduleDecrement(b *testing.B) {
 	interval := 0 * time.Millisecond
 	r := NewRateCounter(interval)
