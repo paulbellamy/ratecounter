@@ -18,7 +18,7 @@ example).
 // We're recording marks-per-1second
 counter := ratecounter.NewRateCounter(1 * time.Second)
 // Record an event happening
-counter.Mark()
+counter.Incr(1)
 // get the current requests-per-second
 counter.Rate()
 ```
