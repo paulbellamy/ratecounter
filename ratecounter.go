@@ -1,6 +1,9 @@
 package ratecounter
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 // A RateCounter is a thread-safe counter which returns the number of times
 // 'Incr' has been called in the last interval
@@ -30,4 +33,8 @@ func (r *RateCounter) scheduleDecrement(amount int64) {
 // Return the current number of events in the last interval
 func (r *RateCounter) Rate() int64 {
 	return r.counter.Value()
+}
+
+func (r *RateCounter) String() string {
+	return strconv.FormatInt(r.counter.Value(), 10)
 }
