@@ -12,25 +12,25 @@ type RateCounter struct {
 	interval time.Duration
 }
 
-// Constructs a new RateCounter, for the interval provided
+// NewRateCounter Constructs a new RateCounter, for the interval provided
 func NewRateCounter(intrvl time.Duration) *RateCounter {
 	return &RateCounter{
 		interval: intrvl,
 	}
 }
 
-// Add an event into the RateCounter
+// Incr Add an event into the RateCounter
 func (r *RateCounter) Incr(val int64) {
 	r.counter.Incr(val)
 	go r.scheduleDecrement(val)
 }
 
 func (r *RateCounter) scheduleDecrement(amount int64) {
-	time.Sleep(r.interval)
-	r.counter.Incr(-1 * amount)
+	f := func() { r.counter.Incr(-1 * amount) }
+	time.AfterFunc(r.interval, f)
 }
 
-// Return the current number of events in the last interval
+// Rate Return the current number of events in the last interval
 func (r *RateCounter) Rate() int64 {
 	return r.counter.Value()
 }
