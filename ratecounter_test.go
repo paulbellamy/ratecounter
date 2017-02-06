@@ -78,15 +78,6 @@ func BenchmarkRateCounter_With5MillionExisting(b *testing.B) {
 	}
 }
 
-func BenchmarkRateCounter_ScheduleDecrement(b *testing.B) {
-	interval := 0 * time.Millisecond
-	r := NewRateCounter(interval)
-
-	for i := 0; i < b.N; i++ {
-		r.scheduleDecrement(-1)
-	}
-}
-
 func Benchmark_TimeNowAndAdd(b *testing.B) {
 	a := []time.Time{}
 	for i := 0; i < b.N; i++ {
