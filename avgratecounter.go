@@ -50,6 +50,10 @@ func (a *AvgRateCounter) Rate() float64 {
 	return float64(value) / float64(hits)
 }
 
+func (a *AvgRateCounter) Hits() int64 {
+	return a.hits.Rate()
+}
+
 func (a *AvgRateCounter) String() string {
 	return strconv.FormatFloat(a.Rate(), 'e', 5, 64)
 }
