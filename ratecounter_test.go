@@ -27,6 +27,31 @@ func TestRateCounter(t *testing.T) {
 	check(0)
 }
 
+func TestRateCounterPartial(t *testing.T) {
+	interval := 500 * time.Millisecond
+	almostinterval := 400 * time.Millisecond
+
+	r := NewRateCounter(interval)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(almostinterval)
+	r.Incr(2)
+	check(3)
+	time.Sleep(almostinterval)
+	check(2)
+	time.Sleep(2 * interval)
+	check(0)
+}
+
 func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 	interval := 1 * time.Second
 	r := NewRateCounter(interval)
