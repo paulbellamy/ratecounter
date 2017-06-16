@@ -226,9 +226,9 @@ func BenchmarkRateCounter_With5MillionExisting(b *testing.B) {
 }
 
 func Benchmark_TimeNowAndAdd(b *testing.B) {
-	a := []time.Time{}
+	var a time.Time
 	for i := 0; i < b.N; i++ {
-		a = append(a, time.Now().Add(1*time.Second))
+		a = time.Now().Add(1 * time.Second)
 	}
 	fmt.Fprintln(ioutil.Discard, a)
 }
