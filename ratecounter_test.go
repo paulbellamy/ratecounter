@@ -27,6 +27,153 @@ func TestRateCounter(t *testing.T) {
 	check(0)
 }
 
+func TestRateCounterResetAndRestart(t *testing.T) {
+	interval := 100 * time.Millisecond
+
+	r := NewRateCounter(interval)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(2 * interval)
+	check(0)
+	time.Sleep(2 * interval)
+	r.Incr(2)
+	check(2)
+	time.Sleep(2 * interval)
+	check(0)
+	r.Incr(2)
+	check(2)
+}
+
+func TestRateCounterPartial(t *testing.T) {
+	interval := 500 * time.Millisecond
+	almostinterval := 400 * time.Millisecond
+
+	r := NewRateCounter(interval)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(almostinterval)
+	r.Incr(2)
+	check(3)
+	time.Sleep(almostinterval)
+	check(2)
+	time.Sleep(2 * interval)
+	check(0)
+}
+
+func TestRateCounterHighResolution(t *testing.T) {
+	interval := 500 * time.Millisecond
+	tenth := 50 * time.Millisecond
+
+	r := NewRateCounter(interval).WithResolution(100)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(2)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(3)
+	time.Sleep(interval - 5*tenth)
+	check(3)
+	time.Sleep(2 * tenth)
+	check(2)
+	time.Sleep(2 * tenth)
+	check(1)
+	time.Sleep(2 * tenth)
+	check(0)
+}
+
+func TestRateCounterLowResolution(t *testing.T) {
+	interval := 500 * time.Millisecond
+	tenth := 50 * time.Millisecond
+
+	r := NewRateCounter(interval).WithResolution(4)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(2)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(3)
+	time.Sleep(interval - 5*tenth)
+	check(3)
+	time.Sleep(2 * tenth)
+	check(1)
+	time.Sleep(2 * tenth)
+	check(0)
+	time.Sleep(2 * tenth)
+	check(0)
+}
+
+func TestRateCounterNoResolution(t *testing.T) {
+	interval := 500 * time.Millisecond
+	tenth := 50 * time.Millisecond
+
+	r := NewRateCounter(interval).WithResolution(1)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(2)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(3)
+	time.Sleep(interval - 5*tenth)
+	check(3)
+	time.Sleep(2 * tenth)
+	check(0)
+	time.Sleep(2 * tenth)
+	check(0)
+	time.Sleep(2 * tenth)
+	check(0)
+}
+
 func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 	interval := 1 * time.Second
 	r := NewRateCounter(interval)

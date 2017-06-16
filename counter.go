@@ -10,6 +10,10 @@ func (c *Counter) Incr(val int64) {
 	atomic.AddInt64((*int64)(c), val)
 }
 
+func (c *Counter) Reset() {
+	atomic.StoreInt64((*int64)(c), 0)
+}
+
 // Return the counter's current value
 func (c *Counter) Value() int64 {
 	return atomic.LoadInt64((*int64)(c))
