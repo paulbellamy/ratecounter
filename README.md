@@ -1,5 +1,7 @@
 # ratecounter
 
+[![CircleCI](https://circleci.com/gh/paulbellamy/ratecounter.svg?style=svg)](https://circleci.com/gh/paulbellamy/ratecounter)
+
 A Thread-Safe RateCounter implementation in Golang
 
 ## Usage
