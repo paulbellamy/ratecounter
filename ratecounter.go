@@ -13,7 +13,7 @@ type RateCounter struct {
 	interval   time.Duration
 	resolution int
 	partials   []Counter
-	current    int
+	current    int32
 	running    int32
 }
 
@@ -46,11 +46,11 @@ func (r *RateCounter) run() {
 
 	go func() {
 		for range time.Tick(time.Duration(float64(r.interval) / float64(r.resolution))) {
-			next := (r.current + 1) % r.resolution
+			current := atomic.LoadInt32(&r.current)
+			next := (int(current) + 1) % r.resolution
 			r.counter.Incr(-1 * r.partials[next].Value())
 			r.partials[next].Reset()
-			r.current = next
-
+			atomic.CompareAndSwapInt32(&r.current, int32(current), int32(next))
 			if r.counter.Value() == 0 {
 				atomic.StoreInt32(&r.running, 0)
 				return
@@ -62,7 +62,7 @@ func (r *RateCounter) run() {
 // Incr Add an event into the RateCounter
 func (r *RateCounter) Incr(val int64) {
 	r.counter.Incr(val)
-	r.partials[r.current].Incr(val)
+	r.partials[atomic.LoadInt32(&r.current)].Incr(val)
 	r.run()
 }
 
