@@ -9,6 +9,6 @@ RateCounter Contributors (sorted alphabetically)
 
   -  Original implementation and general housekeeping
 
-- **[sheerun](https://github.com/alexkwolfe)**
+- **[sheerun](https://github.com/sheerun)**
 
   - Improved memory efficiency
