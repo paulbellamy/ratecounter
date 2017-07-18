@@ -45,7 +45,9 @@ func (r *RateCounter) run() {
 	}
 
 	go func() {
-		for range time.Tick(time.Duration(float64(r.interval) / float64(r.resolution))) {
+		ticker := time.NewTicker(time.Duration(float64(r.interval) / float64(r.resolution)))
+
+		for range ticker.C {
 			current := atomic.LoadInt32(&r.current)
 			next := (int(current) + 1) % r.resolution
 			r.counter.Incr(-1 * r.partials[next].Value())
@@ -53,6 +55,8 @@ func (r *RateCounter) run() {
 			atomic.CompareAndSwapInt32(&r.current, int32(current), int32(next))
 			if r.counter.Value() == 0 {
 				atomic.StoreInt32(&r.running, 0)
+				ticker.Stop()
+
 				return
 			}
 		}
