@@ -13,7 +13,7 @@ type AvgRateCounter struct {
 	interval time.Duration
 }
 
-// NewRateCounter Constructs a new AvgRateCounter, for the interval provided
+// NewAvgRateCounter constructs a new AvgRateCounter, for the interval provided
 func NewAvgRateCounter(intrvl time.Duration) *AvgRateCounter {
 	return &AvgRateCounter{
 		hits:     NewRateCounter(intrvl),
@@ -22,15 +22,15 @@ func NewAvgRateCounter(intrvl time.Duration) *AvgRateCounter {
 	}
 }
 
-func (r *AvgRateCounter) WithResolution(resolution int) *AvgRateCounter {
+func (a *AvgRateCounter) WithResolution(resolution int) *AvgRateCounter {
 	if resolution < 1 {
 		panic("AvgRateCounter resolution cannot be less than 1")
 	}
 
-	r.hits = r.hits.WithResolution(resolution)
-	r.counter = r.counter.WithResolution(resolution)
+	a.hits = a.hits.WithResolution(resolution)
+	a.counter = a.counter.WithResolution(resolution)
 
-	return r
+	return a
 }
 
 // Incr Adds an event into the AvgRateCounter
@@ -50,10 +50,12 @@ func (a *AvgRateCounter) Rate() float64 {
 	return float64(value) / float64(hits)
 }
 
+// Hits returns the number of calling method Incr during specified interval
 func (a *AvgRateCounter) Hits() int64 {
 	return a.hits.Rate()
 }
 
+// String returns counter's rate formatted to string
 func (a *AvgRateCounter) String() string {
 	return strconv.FormatFloat(a.Rate(), 'e', 5, 64)
 }
