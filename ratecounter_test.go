@@ -142,6 +142,16 @@ func TestRateCounterLowResolution(t *testing.T) {
 	check(0)
 }
 
+func TestRateCounterMinResolution(t *testing.T) {
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Resolution < 1 did not panic")
+		}
+	}()
+
+	NewRateCounter(500 * time.Millisecond).WithResolution(0)
+}
+
 func TestRateCounterNoResolution(t *testing.T) {
 	interval := 500 * time.Millisecond
 	tenth := 50 * time.Millisecond
@@ -172,6 +182,18 @@ func TestRateCounterNoResolution(t *testing.T) {
 	check(0)
 	time.Sleep(2 * tenth)
 	check(0)
+}
+
+func TestRateCounter_String(t *testing.T) {
+	r := NewRateCounter(1 * time.Second)
+	if r.String() != "0" {
+		t.Error("Expected ", r.String(), " to equal ", "0")
+	}
+
+	r.Incr(1)
+	if r.String() != "1" {
+		t.Error("Expected ", r.String(), " to equal ", "1")
+	}
 }
 
 func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
