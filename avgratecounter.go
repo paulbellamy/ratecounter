@@ -22,6 +22,7 @@ func NewAvgRateCounter(intrvl time.Duration) *AvgRateCounter {
 	}
 }
 
+// WithResolution determines the minimum resolution of this counter
 func (a *AvgRateCounter) WithResolution(resolution int) *AvgRateCounter {
 	if resolution < 1 {
 		panic("AvgRateCounter resolution cannot be less than 1")
