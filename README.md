@@ -3,6 +3,7 @@
 [![CircleCI](https://circleci.com/gh/paulbellamy/ratecounter.svg?style=svg)](https://circleci.com/gh/paulbellamy/ratecounter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/paulbellamy/ratecounter)](https://goreportcard.com/report/github.com/paulbellamy/ratecounter)
 [![GoDoc](https://godoc.org/github.com/paulbellamy/ratecounter?status.svg)](https://godoc.org/github.com/paulbellamy/ratecounter)
+[![codecov](https://codecov.io/gh/paulbellamy/ratecounter/branch/master/graph/badge.svg)](https://codecov.io/gh/paulbellamy/ratecounter)
 
 A Thread-Safe RateCounter implementation in Golang
 
