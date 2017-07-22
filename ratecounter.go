@@ -76,6 +76,18 @@ func (r *RateCounter) Rate() int64 {
 	return r.counter.Value()
 }
 
+func (r *RateCounter) MaxTickRate() int64 {
+	max := int64(0)
+
+	for _, p := range r.partials {
+		if max < p.Value() {
+			max = p.Value()
+		}
+	}
+
+	return max
+}
+
 func (r *RateCounter) String() string {
 	return strconv.FormatInt(r.counter.Value(), 10)
 }

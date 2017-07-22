@@ -196,6 +196,38 @@ func TestRateCounter_String(t *testing.T) {
 	}
 }
 
+func TestRateCounterHighResolutionMaxTickRate(t *testing.T) {
+	interval := 500 * time.Millisecond
+	tenth := 50 * time.Millisecond
+
+	r := NewRateCounter(interval).WithResolution(100)
+
+	check := func(expected int64) {
+		val := r.MaxTickRate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	check(0)
+	r.Incr(3)
+	check(3)
+	time.Sleep(2 * tenth)
+	r.Incr(2)
+	check(3)
+	time.Sleep(2 * tenth)
+	r.Incr(4)
+	check(4)
+	time.Sleep(interval - 5*tenth)
+	check(4)
+	time.Sleep(2 * tenth)
+	check(4)
+	time.Sleep(2 * tenth)
+	check(4)
+	time.Sleep(2 * tenth)
+	check(0)
+}
+
 func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 	interval := 1 * time.Second
 	r := NewRateCounter(interval)
