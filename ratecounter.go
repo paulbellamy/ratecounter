@@ -15,6 +15,7 @@ type RateCounter struct {
 	partials   []Counter
 	current    int32
 	running    int32
+	onStop     func(r *RateCounter)
 }
 
 // NewRateCounter Constructs a new RateCounter, for the interval provided
@@ -40,6 +41,12 @@ func (r *RateCounter) WithResolution(resolution int) *RateCounter {
 	return r
 }
 
+// OnStop allow to specify a function that will be called when the counter reaches 0
+// useful for removing it
+func (r *RateCounter) OnStop(f func(*RateCounter)) {
+	r.onStop = f
+}
+
 func (r *RateCounter) run() {
 	if ok := atomic.CompareAndSwapInt32(&r.running, 0, 1); !ok {
 		return
@@ -57,6 +64,9 @@ func (r *RateCounter) run() {
 			if r.counter.Value() == 0 {
 				atomic.StoreInt32(&r.running, 0)
 				ticker.Stop()
+				if r.onStop != nil {
+					r.onStop(r)
+				}
 
 				return
 			}
