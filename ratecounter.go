@@ -28,6 +28,16 @@ func NewRateCounter(intrvl time.Duration) *RateCounter {
 	return ratecounter.WithResolution(20)
 }
 
+// NewRateCounterWithResolution Constructs a new RateCounter, for the provided interval and resolution
+func NewRateCounterWithResolution(intrvl time.Duration, resolution int) *RateCounter {
+	ratecounter := &RateCounter{
+		interval: intrvl,
+		running:  0,
+	}
+
+	return ratecounter.WithResolution(resolution)
+}
+
 // WithResolution determines the minimum resolution of this counter, default is 20
 func (r *RateCounter) WithResolution(resolution int) *RateCounter {
 	if resolution < 1 {
