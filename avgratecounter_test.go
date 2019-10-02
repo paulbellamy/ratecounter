@@ -31,6 +31,7 @@ func TestAvgRateCounter(t *testing.T) {
 func TestAvgRateCounterAdvanced(t *testing.T) {
 	interval := 50 * time.Millisecond
 	almost := 45 * time.Millisecond
+	gap := 1 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
 	check := func(expectedRate float64, expectedHits int64) {
@@ -49,7 +50,7 @@ func TestAvgRateCounterAdvanced(t *testing.T) {
 	time.Sleep(interval - almost)
 	r.Incr(3) // counter = 4, hits = 2
 	check(2.0, 2)
-	time.Sleep(almost)
+	time.Sleep(almost + gap)
 	check(3.0, 1) // counter = 3, hits = 1
 	time.Sleep(2 * interval)
 	check(0, 0)
@@ -68,6 +69,7 @@ func TestAvgRateCounterMinResolution(t *testing.T) {
 func TestAvgRateCounterNoResolution(t *testing.T) {
 	interval := 50 * time.Millisecond
 	almost := 45 * time.Millisecond
+	gap := 1 * time.Millisecond
 	r := NewAvgRateCounter(interval).WithResolution(1)
 
 	check := func(expectedRate float64, expectedHits int64) {
@@ -86,7 +88,7 @@ func TestAvgRateCounterNoResolution(t *testing.T) {
 	time.Sleep(interval - almost)
 	r.Incr(3) // counter = 4, hits = 2
 	check(2.0, 2)
-	time.Sleep(almost)
+	time.Sleep(almost + gap)
 	check(0, 0) // counter = 0, hits = 0
 	time.Sleep(2 * interval)
 	check(0, 0)
