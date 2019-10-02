@@ -6,7 +6,7 @@ import (
 )
 
 func TestAvgRateCounter(t *testing.T) {
-	interval := 500 * time.Millisecond
+	interval := 50 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
 	check := func(expectedRate float64, expectedHits int64) {
@@ -29,8 +29,8 @@ func TestAvgRateCounter(t *testing.T) {
 }
 
 func TestAvgRateCounterAdvanced(t *testing.T) {
-	interval := 500 * time.Millisecond
-	almost := 450 * time.Millisecond
+	interval := 50 * time.Millisecond
+	almost := 45 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
 	check := func(expectedRate float64, expectedHits int64) {
@@ -66,8 +66,8 @@ func TestAvgRateCounterMinResolution(t *testing.T) {
 }
 
 func TestAvgRateCounterNoResolution(t *testing.T) {
-	interval := 500 * time.Millisecond
-	almost := 450 * time.Millisecond
+	interval := 50 * time.Millisecond
+	almost := 45 * time.Millisecond
 	r := NewAvgRateCounter(interval).WithResolution(1)
 
 	check := func(expectedRate float64, expectedHits int64) {
