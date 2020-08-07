@@ -4,11 +4,11 @@ in an interval
 
 Useful for implementing counters and stats of 'requests-per-second' (for example).
 
-  // We're recording marks-per-1second
+  // We're recording events-per-1second
   counter := ratecounter.NewRateCounter(1 * time.Second)
 
   // Record an event happening
-  counter.Mark()
+  counter.Incr(1)
 
   // get the current requests-per-second
   counter.Rate()
