@@ -2,6 +2,7 @@ package ratecounter
 
 import (
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -15,6 +16,8 @@ type RateCounter struct {
 	partials   []Counter
 	current    int32
 	running    int32
+	onStop     func(r *RateCounter)
+	onStopLock sync.RWMutex
 }
 
 // NewRateCounter Constructs a new RateCounter, for the interval provided
@@ -25,6 +28,16 @@ func NewRateCounter(intrvl time.Duration) *RateCounter {
 	}
 
 	return ratecounter.WithResolution(20)
+}
+
+// NewRateCounterWithResolution Constructs a new RateCounter, for the provided interval and resolution
+func NewRateCounterWithResolution(intrvl time.Duration, resolution int) *RateCounter {
+	ratecounter := &RateCounter{
+		interval: intrvl,
+		running:  0,
+	}
+
+	return ratecounter.WithResolution(resolution)
 }
 
 // WithResolution determines the minimum resolution of this counter, default is 20
@@ -38,6 +51,14 @@ func (r *RateCounter) WithResolution(resolution int) *RateCounter {
 	r.current = 0
 
 	return r
+}
+
+// OnStop allow to specify a function that will be called each time the counter
+// reaches 0. Useful for removing it.
+func (r *RateCounter) OnStop(f func(*RateCounter)) {
+	r.onStopLock.Lock()
+	r.onStop = f
+	r.onStopLock.Unlock()
 }
 
 func (r *RateCounter) run() {
@@ -57,6 +78,12 @@ func (r *RateCounter) run() {
 			if r.counter.Value() == 0 {
 				atomic.StoreInt32(&r.running, 0)
 				ticker.Stop()
+
+				r.onStopLock.RLock()
+				if r.onStop != nil {
+					r.onStop(r)
+				}
+				r.onStopLock.RUnlock()
 
 				return
 			}
