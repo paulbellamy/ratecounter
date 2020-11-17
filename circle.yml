@@ -1,21 +1,41 @@
-dependencies:
-  post:
-    - go get -u github.com/alecthomas/gometalinter
-    - gometalinter --install
+version: 2
+jobs:
+  test:
+     docker: # run the steps with Docker
+       - image: circleci/golang:1.15
+     steps: # steps that comprise the `build` job
+       - checkout # check out source code to working directory
+       - run:
+           name: Install gometalinter
+           command: |
+             go get -u github.com/alecthomas/gometalinter
+             gometalinter --install
 
-test:
-  override:
-    - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
-    - |
-      gometalinter \
-        --disable-all \
-        --enable=deadcode \
-        --enable=errcheck \
-        --enable=golint \
-        --enable=gosimple \
-        --enable=unconvert \
-        --enable=vet \
-        --enable=vetshadow \
-        ./...
-  post:
-    - bash <(curl -s https://codecov.io/bash)
+       - run:
+           name: Run unit tests
+           command: |
+             go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+       - run:
+           name: Run gometalinter
+           command: |
+             gometalinter \
+               --disable-all \
+               --enable=deadcode \
+               --enable=errcheck \
+               --enable=golint \
+               --enable=gosimple \
+               --enable=unconvert \
+               --enable=vet \
+               --enable=vetshadow \
+               ./...
+
+       - run:
+           name: Upload codecov report
+           command: |
+             bash <(curl -s https://codecov.io/bash)
+workflows:
+  version: 2
+  test-workflow:
+    jobs:
+      - test
