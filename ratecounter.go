@@ -2,6 +2,7 @@ package ratecounter
 
 import (
 	"strconv"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -16,6 +17,7 @@ type RateCounter struct {
 	current    int32
 	running    int32
 	onStop     func(r *RateCounter)
+	onStopLock sync.RWMutex
 }
 
 // NewRateCounter Constructs a new RateCounter, for the interval provided
@@ -51,10 +53,12 @@ func (r *RateCounter) WithResolution(resolution int) *RateCounter {
 	return r
 }
 
-// OnStop allow to specify a function that will be called when the counter reaches 0
-// useful for removing it
+// OnStop allow to specify a function that will be called each time the counter
+// reaches 0. Useful for removing it.
 func (r *RateCounter) OnStop(f func(*RateCounter)) {
+	r.onStopLock.Lock()
 	r.onStop = f
+	r.onStopLock.Unlock()
 }
 
 func (r *RateCounter) run() {
@@ -74,9 +78,12 @@ func (r *RateCounter) run() {
 			if r.counter.Value() == 0 {
 				atomic.StoreInt32(&r.running, 0)
 				ticker.Stop()
+
+				r.onStopLock.RLock()
 				if r.onStop != nil {
 					r.onStop(r)
 				}
+				r.onStopLock.RUnlock()
 
 				return
 			}

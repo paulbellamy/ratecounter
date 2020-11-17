@@ -8,7 +8,7 @@ import (
 )
 
 func TestRateCounter(t *testing.T) {
-	interval := 500 * time.Millisecond
+	interval := 50 * time.Millisecond
 	r := NewRateCounter(interval)
 
 	check := func(expected int64) {
@@ -28,7 +28,7 @@ func TestRateCounter(t *testing.T) {
 }
 
 func TestRateCounterResetAndRestart(t *testing.T) {
-	interval := 100 * time.Millisecond
+	interval := 50 * time.Millisecond
 
 	r := NewRateCounter(interval)
 
@@ -54,8 +54,8 @@ func TestRateCounterResetAndRestart(t *testing.T) {
 }
 
 func TestRateCounterPartial(t *testing.T) {
-	interval := 500 * time.Millisecond
-	almostinterval := 400 * time.Millisecond
+	interval := 50 * time.Millisecond
+	almost := 40 * time.Millisecond
 
 	r := NewRateCounter(interval)
 
@@ -69,18 +69,18 @@ func TestRateCounterPartial(t *testing.T) {
 	check(0)
 	r.Incr(1)
 	check(1)
-	time.Sleep(almostinterval)
+	time.Sleep(almost)
 	r.Incr(2)
 	check(3)
-	time.Sleep(almostinterval)
+	time.Sleep(almost)
 	check(2)
 	time.Sleep(2 * interval)
 	check(0)
 }
 
 func TestRateCounterHighResolution(t *testing.T) {
-	interval := 500 * time.Millisecond
-	tenth := 50 * time.Millisecond
+	interval := 50 * time.Millisecond
+	tenth := 5 * time.Millisecond
 
 	r := NewRateCounter(interval).WithResolution(100)
 
@@ -111,8 +111,8 @@ func TestRateCounterHighResolution(t *testing.T) {
 }
 
 func TestRateCounterLowResolution(t *testing.T) {
-	interval := 500 * time.Millisecond
-	tenth := 50 * time.Millisecond
+	interval := 50 * time.Millisecond
+	tenth := 5 * time.Millisecond
 
 	r := NewRateCounter(interval).WithResolution(4)
 
@@ -149,12 +149,12 @@ func TestRateCounterMinResolution(t *testing.T) {
 		}
 	}()
 
-	NewRateCounter(500 * time.Millisecond).WithResolution(0)
+	NewRateCounter(50 * time.Millisecond).WithResolution(0)
 }
 
 func TestRateCounterNoResolution(t *testing.T) {
-	interval := 500 * time.Millisecond
-	tenth := 50 * time.Millisecond
+	interval := 50 * time.Millisecond
+	tenth := 5 * time.Millisecond
 
 	r := NewRateCounter(interval).WithResolution(1)
 
@@ -206,6 +206,27 @@ func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 
 	if duration >= 1*time.Second {
 		t.Error("incr took", duration, "to return")
+	}
+}
+
+func TestRateCounter_OnStop(t *testing.T) {
+	var called Counter
+	interval := 50 * time.Millisecond
+	r := NewRateCounter(interval)
+	r.OnStop(func(r *RateCounter) {
+		called.Incr(1)
+	})
+	r.Incr(1)
+
+	current := called.Value()
+	if current != 0 {
+		t.Error("Expected called to equal 0, got ", current)
+	}
+
+	time.Sleep(2 * interval)
+	current = called.Value()
+	if current != 1 {
+		t.Error("Expected called to equal 1, got ", current)
 	}
 }
 
