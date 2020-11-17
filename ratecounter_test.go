@@ -229,14 +229,14 @@ func TestRateCounter_String(t *testing.T) {
 	}
 }
 
-func TestRateCounterHighResolutionMaxTickRate(t *testing.T) {
+func TestRateCounterHighResolutionMaxRate(t *testing.T) {
 	interval := 500 * time.Millisecond
 	tenth := 50 * time.Millisecond
 
 	r := NewRateCounter(interval).WithResolution(100)
 
 	check := func(expected int64) {
-		val := r.MaxTickRate()
+		val := r.MaxRate()
 		if val != expected {
 			t.Error("Expected ", val, " to equal ", expected)
 		}
