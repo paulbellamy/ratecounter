@@ -209,6 +209,27 @@ func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 	}
 }
 
+func TestRateCounter_OnStop(t *testing.T) {
+	var called Counter
+	interval := 50 * time.Millisecond
+	r := NewRateCounter(interval)
+	r.OnStop(func(r *RateCounter) {
+		called.Incr(1)
+	})
+	r.Incr(1)
+
+	current := called.Value()
+	if current != 0 {
+		t.Error("Expected called to equal 0, got ", current)
+	}
+
+	time.Sleep(2 * interval)
+	current = called.Value()
+	if current != 1 {
+		t.Error("Expected called to equal 1, got ", current)
+	}
+}
+
 func BenchmarkRateCounter(b *testing.B) {
 	interval := 0 * time.Millisecond
 	r := NewRateCounter(interval)
