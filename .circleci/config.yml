@@ -1,15 +1,10 @@
 version: 2
 jobs:
   test:
-     docker: # run the steps with Docker
+     docker:
        - image: circleci/golang:1.15
-     steps: # steps that comprise the `build` job
-       - checkout # check out source code to working directory
-       - run:
-           name: Install gometalinter
-           command: |
-             go get -u github.com/alecthomas/gometalinter
-             gometalinter --install
+     steps:
+       - checkout
 
        - run:
            name: Run unit tests
@@ -17,24 +12,29 @@ jobs:
              go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
        - run:
-           name: Run gometalinter
-           command: |
-             gometalinter \
-               --disable-all \
-               --enable=deadcode \
-               --enable=errcheck \
-               --enable=golint \
-               --enable=unconvert \
-               --enable=vet \
-               --enable=vetshadow \
-               ./...
-
-       - run:
            name: Upload codecov report
            command: |
              bash <(curl -s https://codecov.io/bash)
+
+  lint:
+     docker:
+       - image: circleci/golang:1.15
+     steps:
+       - checkout
+
+       - run:
+           name: Install golangci-lint
+           command: |
+             curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.32.2
+
+       - run:
+           name: Run golangci-lint
+           command: |
+             golangci-lint run -v ./...
+
 workflows:
   version: 2
   test-workflow:
     jobs:
       - test
+      - lint
