@@ -24,7 +24,6 @@ jobs:
                --enable=deadcode \
                --enable=errcheck \
                --enable=golint \
-               --enable=gosimple \
                --enable=unconvert \
                --enable=vet \
                --enable=vetshadow \
