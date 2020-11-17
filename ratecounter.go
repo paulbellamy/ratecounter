@@ -103,6 +103,24 @@ func (r *RateCounter) Rate() int64 {
 	return r.counter.Value()
 }
 
+// MaxRate counts the maximum instantaneous change in rate.
+//
+// This is useful to calculate number of events in last period without
+// "averaging" effect. i.e. currently if counter is set for 30 seconds
+// duration, and events fire 10 times per second, it'll take 30 seconds for
+// "Rate" to show 300 (or 10 per second). The "MaxRate" will show 10
+// immediately, and it'll stay this way for the next 30 seconds, even if rate
+// drops below it.
+func (r *RateCounter) MaxRate() int64 {
+	max := int64(0)
+	for i := 0; i < r.resolution; i++ {
+		if value := r.partials[i].Value(); max < value {
+			max = value
+		}
+	}
+	return max
+}
+
 func (r *RateCounter) String() string {
 	return strconv.FormatInt(r.counter.Value(), 10)
 }
