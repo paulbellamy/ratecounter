@@ -142,6 +142,39 @@ func TestRateCounterLowResolution(t *testing.T) {
 	check(0)
 }
 
+func TestNewRateCounterWithResolution(t *testing.T) {
+	interval := 50 * time.Millisecond
+	tenth := 5 * time.Millisecond
+
+	r := NewRateCounterWithResolution(interval, 4)
+
+	check := func(expected int64) {
+		val := r.Rate()
+		if val != expected {
+			t.Error("Expected ", val, " to equal ", expected)
+		}
+	}
+
+	// Same as previous test with low resolution
+	check(0)
+	r.Incr(1)
+	check(1)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(2)
+	time.Sleep(2 * tenth)
+	r.Incr(1)
+	check(3)
+	time.Sleep(interval - 5*tenth)
+	check(3)
+	time.Sleep(2 * tenth)
+	check(1)
+	time.Sleep(2 * tenth)
+	check(0)
+	time.Sleep(2 * tenth)
+	check(0)
+}
+
 func TestRateCounterMinResolution(t *testing.T) {
 	defer func() {
 		if r := recover(); r == nil {
