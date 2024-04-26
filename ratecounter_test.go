@@ -5,52 +5,46 @@ import (
 	"io/ioutil"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRateCounter(t *testing.T) {
 	interval := 50 * time.Millisecond
 	r := NewRateCounter(interval)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	r.Incr(2)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(2 * interval)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
-func TestRateCounterResetAndRestart(t *testing.T) {
+func TestRateCounterExpireAndRestart(t *testing.T) {
 	interval := 50 * time.Millisecond
 
 	r := NewRateCounter(interval)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
+
+	// Let it expire down to zero, then restart
 	time.Sleep(2 * interval)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	time.Sleep(2 * interval)
 	r.Incr(2)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
+
+	// Let it expire down to zero
 	time.Sleep(2 * interval)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
+
+	// Restart it
 	r.Incr(2)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 }
 
 func TestRateCounterPartial(t *testing.T) {
@@ -59,23 +53,16 @@ func TestRateCounterPartial(t *testing.T) {
 
 	r := NewRateCounter(interval)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(almost)
 	r.Incr(2)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(almost)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * interval)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
 func TestRateCounterHighResolution(t *testing.T) {
@@ -84,30 +71,23 @@ func TestRateCounterHighResolution(t *testing.T) {
 
 	r := NewRateCounter(interval).WithResolution(100)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(interval - 5*tenth)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(2 * tenth)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * tenth)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
 func TestRateCounterLowResolution(t *testing.T) {
@@ -116,30 +96,23 @@ func TestRateCounterLowResolution(t *testing.T) {
 
 	r := NewRateCounter(interval).WithResolution(4)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(interval - 5*tenth)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(2 * tenth)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
 func TestNewRateCounterWithResolution(t *testing.T) {
@@ -148,31 +121,24 @@ func TestNewRateCounterWithResolution(t *testing.T) {
 
 	r := NewRateCounterWithResolution(interval, 4)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
 	// Same as previous test with low resolution
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(interval - 5*tenth)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(2 * tenth)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
 func TestRateCounterMinResolution(t *testing.T) {
@@ -191,30 +157,23 @@ func TestRateCounterNoResolution(t *testing.T) {
 
 	r := NewRateCounter(interval).WithResolution(1)
 
-	check := func(expected int64) {
-		val := r.Rate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	r.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(2)
+	assert.Equal(t, int64(2), r.Rate())
 	time.Sleep(2 * tenth)
 	r.Incr(1)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(interval - 5*tenth)
-	check(3)
+	assert.Equal(t, int64(3), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.Rate())
 }
 
 func TestRateCounter_String(t *testing.T) {
@@ -235,30 +194,23 @@ func TestRateCounterHighResolutionMaxRate(t *testing.T) {
 
 	r := NewRateCounter(interval).WithResolution(100)
 
-	check := func(expected int64) {
-		val := r.MaxRate()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), r.MaxRate())
 	r.Incr(3)
-	check(3)
+	assert.Equal(t, int64(3), r.MaxRate())
 	time.Sleep(2 * tenth)
 	r.Incr(2)
-	check(3)
+	assert.Equal(t, int64(3), r.MaxRate())
 	time.Sleep(2 * tenth)
 	r.Incr(4)
-	check(4)
+	assert.Equal(t, int64(4), r.MaxRate())
 	time.Sleep(interval - 5*tenth)
-	check(4)
+	assert.Equal(t, int64(4), r.MaxRate())
 	time.Sleep(2 * tenth)
-	check(4)
+	assert.Equal(t, int64(4), r.MaxRate())
 	time.Sleep(2 * tenth)
-	check(4)
+	assert.Equal(t, int64(4), r.MaxRate())
 	time.Sleep(2 * tenth)
-	check(0)
+	assert.Equal(t, int64(0), r.MaxRate())
 }
 
 func TestRateCounter_Incr_ReturnsImmediately(t *testing.T) {
@@ -296,7 +248,7 @@ func TestRateCounter_OnStop(t *testing.T) {
 }
 
 func BenchmarkRateCounter(b *testing.B) {
-	interval := 0 * time.Millisecond
+	interval := 1 * time.Millisecond
 	r := NewRateCounter(interval)
 
 	for i := 0; i < b.N; i++ {
@@ -306,7 +258,7 @@ func BenchmarkRateCounter(b *testing.B) {
 }
 
 func BenchmarkRateCounter_Parallel(b *testing.B) {
-	interval := 0 * time.Millisecond
+	interval := 1 * time.Millisecond
 	r := NewRateCounter(interval)
 
 	b.RunParallel(func(pb *testing.PB) {

@@ -3,29 +3,25 @@ package ratecounter
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAvgRateCounter(t *testing.T) {
 	interval := 50 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
-	check := func(expectedRate float64, expectedHits int64) {
-		rate, hits := r.Rate(), r.Hits()
-		if rate != expectedRate {
-			t.Error("Expected rate ", rate, " to equal ", expectedRate)
-		}
-		if hits != expectedHits {
-			t.Error("Expected hits ", hits, " to equal ", expectedHits)
-		}
-	}
-
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 	r.Incr(1) // counter = 1, hits = 1
-	check(1.0, 1)
+	assert.Equal(t, float64(1.0), r.Rate())
+	assert.Equal(t, int64(1), r.Hits())
 	r.Incr(3) // counter = 4, hits = 2
-	check(2.0, 2)
+	assert.Equal(t, float64(2.0), r.Rate())
+	assert.Equal(t, int64(2), r.Hits())
 	time.Sleep(2 * interval)
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 }
 
 func TestAvgRateCounterAdvanced(t *testing.T) {
@@ -34,26 +30,21 @@ func TestAvgRateCounterAdvanced(t *testing.T) {
 	gap := 1 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
-	check := func(expectedRate float64, expectedHits int64) {
-		rate, hits := r.Rate(), r.Hits()
-		if rate != expectedRate {
-			t.Error("Expected rate ", rate, " to equal ", expectedRate)
-		}
-		if hits != expectedHits {
-			t.Error("Expected hits ", hits, " to equal ", expectedHits)
-		}
-	}
-
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 	r.Incr(1) // counter = 1, hits = 1
-	check(1.0, 1)
+	assert.Equal(t, float64(1.0), r.Rate())
+	assert.Equal(t, int64(1), r.Hits())
 	time.Sleep(interval - almost)
 	r.Incr(3) // counter = 4, hits = 2
-	check(2.0, 2)
+	assert.Equal(t, float64(2.0), r.Rate())
+	assert.Equal(t, int64(2), r.Hits())
 	time.Sleep(almost + gap)
-	check(3.0, 1) // counter = 3, hits = 1
+	assert.Equal(t, float64(3.0), r.Rate())
+	assert.Equal(t, int64(1), r.Hits()) // counter = 3, hits = 1
 	time.Sleep(2 * interval)
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 }
 
 func TestAvgRateCounterMinResolution(t *testing.T) {
@@ -72,26 +63,21 @@ func TestAvgRateCounterNoResolution(t *testing.T) {
 	gap := 1 * time.Millisecond
 	r := NewAvgRateCounter(interval).WithResolution(1)
 
-	check := func(expectedRate float64, expectedHits int64) {
-		rate, hits := r.Rate(), r.Hits()
-		if rate != expectedRate {
-			t.Error("Expected rate ", rate, " to equal ", expectedRate)
-		}
-		if hits != expectedHits {
-			t.Error("Expected hits ", hits, " to equal ", expectedHits)
-		}
-	}
-
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 	r.Incr(1) // counter = 1, hits = 1
-	check(1.0, 1)
+	assert.Equal(t, float64(1.0), r.Rate())
+	assert.Equal(t, int64(1), r.Hits())
 	time.Sleep(interval - almost)
 	r.Incr(3) // counter = 4, hits = 2
-	check(2.0, 2)
+	assert.Equal(t, float64(2.0), r.Rate())
+	assert.Equal(t, int64(2), r.Hits())
 	time.Sleep(almost + gap)
-	check(0, 0) // counter = 0, hits = 0
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits()) // counter = 0, hits = 0, r.Hits())
 	time.Sleep(2 * interval)
-	check(0, 0)
+	assert.Equal(t, float64(0), r.Rate())
+	assert.Equal(t, int64(0), r.Hits())
 }
 
 func TestAvgRateCounter_String(t *testing.T) {
@@ -120,7 +106,7 @@ func TestAvgRateCounter_Incr_ReturnsImmediately(t *testing.T) {
 }
 
 func BenchmarkAvgRateCounter(b *testing.B) {
-	interval := 0 * time.Millisecond
+	interval := 1 * time.Millisecond
 	r := NewAvgRateCounter(interval)
 
 	for i := 0; i < b.N; i++ {

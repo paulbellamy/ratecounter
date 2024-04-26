@@ -3,25 +3,20 @@ package ratecounter
 import (
 	"sync"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCounter(t *testing.T) {
 	var c Counter
 
-	check := func(expected int64) {
-		val := c.Value()
-		if val != expected {
-			t.Error("Expected ", val, " to equal ", expected)
-		}
-	}
-
-	check(0)
+	assert.Equal(t, int64(0), c.Value())
 	c.Incr(1)
-	check(1)
+	assert.Equal(t, int64(1), c.Value())
 	c.Incr(9)
-	check(10)
+	assert.Equal(t, int64(10), c.Value())
 	c.Reset()
-	check(0)
+	assert.Equal(t, int64(0), c.Value())
 
 	// Concurrent usage
 	wg := &sync.WaitGroup{}
@@ -33,7 +28,7 @@ func TestCounter(t *testing.T) {
 		}(int64(i))
 	}
 	wg.Wait()
-	check(6)
+	assert.Equal(t, int64(6), c.Value())
 }
 
 func BenchmarkCounter(b *testing.B) {
