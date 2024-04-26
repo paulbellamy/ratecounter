@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// A RateCounter is a thread-safe counter which returns the number of times
-// 'Incr' has been called in the last interval
+// A ResettableRateCounter is a RateCounter wrapper which adds the ability to
+// atomically reset it to 0.
 type ResettableRateCounter struct {
 	ptr atomic.Pointer[RateCounter]
 }
