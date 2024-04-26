@@ -20,6 +20,8 @@ func TestCounter(t *testing.T) {
 	check(1)
 	c.Incr(9)
 	check(10)
+	c.Reset()
+	check(0)
 
 	// Concurrent usage
 	wg := &sync.WaitGroup{}
@@ -31,7 +33,7 @@ func TestCounter(t *testing.T) {
 		}(int64(i))
 	}
 	wg.Wait()
-	check(16)
+	check(6)
 }
 
 func BenchmarkCounter(b *testing.B) {
